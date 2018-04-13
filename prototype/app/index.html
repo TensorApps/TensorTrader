@@ -13,128 +13,45 @@
 </head>
 
 <body>
-  <v-flex id="app" v-cloak>
-    <v-app id="trading" dark>
-      <v-navigation-drawer clipped fixed v-model="drawer" app>
-        <v-list dense>
-          <v-list-tile :value="true" v-for="(item, i) in navItems" :key="item.title">
-            <v-list-tile-action>
-              <v-icon light v-html="item.icon"></v-icon>
-            </v-list-tile-action>
-            <v-list-tile-content>
-              <v-list-tile-title v-text="item.title"></v-list-tile-title>
-            </v-list-tile-content>
-          </v-list-tile>
-        </v-list>
-      </v-navigation-drawer>
-      <v-toolbar clipped-left fixed app>
-        <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-        <v-toolbar-title v-text="title"></v-toolbar-title>
-      </v-toolbar>
-      <v-content>
-        <v-container fluid grid-list-lg>
-          <page></page>
-        </v-container>
-      </v-content>
-      <!--v-footer fixed app></v-footer-->
-    </v-app>
-  </v-flex>
-
-  <script type="text/x-template" id="page">
-    <v-layout row wrap>
-      <!-- Exchange/Market selector /-->
-      <v-flex xs6>
-        <v-select id="exchange" label="EXCHANGE" :items="exchanges" multi-line></v-select>
-      </v-flex>
-      <v-flex xs6>
-        <v-select id="market" label="MARKET" :items="markets" multi-line></v-select>
-      </v-flex>
-      <!-- Trade panel /-->
-      <v-flex xs12>
-        <v-tabs color="transparent" grow>
-          <v-tab active-class="default-class selected-tab">
-            <h3>LIMIT</h3>
-          </v-tab>
-          <v-tab active-class="default-class selected-tab">
-            <h3>MARKET</h3>
-          </v-tab>
-          <v-tab-item>
-            <v-card>
-              <v-card-text>
-                <v-container fluid>
-                  <v-layout row wrap>
-                    <v-flex xs6>
-                      <v-text-field id="amount" label="AMOUNT" suffix="BTC" dark></v-text-field>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-text-field id="price" label="PRICE" suffix="USD" dark></v-text-field>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-btn color="success" large block>BUY</v-btn>
-                    </v-flex>
-                    <v-flex xs6>
-                      <v-btn color="error" large block>SELL</v-btn>
-                    </v-flex>
-                  </v-layout>
-                </v-container>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card>
-              <v-card-text>Not implemented yet. Who is doing Market orders anyway? ;)</v-card-text>
-            </v-card>
-          </v-tab-item>
-        </v-tabs>
-      </v-flex>
-      <!-- Positions/Orders/History panel /-->
-      <v-flex xs12>
-        <v-tabs color="transparent" dark grow>
-          <v-tab active-class="default-class selected-tab">
-            <h3>POSITIONS</h3>
-          </v-tab>
-          <v-tab active-class="default-class selected-tab">
-            <h3>ORDERS</h3>
-          </v-tab>
-          <v-tab active-class="default-class selected-tab">
-            <h3>HISTORY</h3>
-          </v-tab>
-          <v-tab-item>
-            <v-card>
-              <v-card-text>
-                <positions></positions>
-              </v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card>
-              <v-card-text>Orders</v-card-text>
-            </v-card>
-          </v-tab-item>
-          <v-tab-item>
-            <v-card>
-              <v-card-text>History</v-card-text>
-            </v-card>
-          </v-tab-item>
-        </v-tabs>
-      </v-flex>
-    </v-layout>
-  </script>
-
-  <script id="positions" type="text/x-template">
-    <v-data-table class="elevation-2 positions-table" :headers="headers" :items="items" hide-actions>
-      <template slot="items" slot-scope="props">
-        <td class="text-xs-left ">{{ props.item.exchange }}</td>
-        <td class="text-xs-left ">{{ props.item.pair }}</td>
-        <td class="text-xs-left ">{{ props.item.price }}</td>
-        <td class="text-xs-left ">{{ props.item.amount }}</td>
-      </template>
-    </v-data-table>
-  </script>
+  <v-app id="app" dark v-cloak>
+    <!-- Navigation (menu) /-->
+    <v-navigation-drawer clipped fixed v-model="drawer" app disable-resize-watcher disable-route-watcher>
+      <v-list dense>
+        <v-list-tile v-for="(item, i) in navItems" :key="item.title" :to="item.path">
+          <v-list-tile-action>
+            <v-icon v-html="item.icon"></v-icon>
+          </v-list-tile-action>
+          <v-list-tile-content>
+            <v-list-tile-title v-text="item.title"></v-list-tile-title>
+          </v-list-tile-content>
+        </v-list-tile>
+      </v-list>
+    </v-navigation-drawer>
+    <!-- Toolbar (header) /-->
+    <v-toolbar clipped-left fixed app>
+      <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
+      <v-toolbar-title v-text="title"></v-toolbar-title>
+    </v-toolbar>
+    <!-- Content (main) /-->
+    <v-content>
+      <v-fade-transition mode="out-in">
+        <router-view></router-view>
+      </v-fade-transition>
+    </v-content>
+    <!-- Footer /-->
+    <!--v-footer fixed app v-cloak>
+      <small>&copy; 2018 Created with ❤️ by TensorApps</small>
+    </v-footer-->
+  </v-app>
 
   <script src="https://unpkg.com/vue"></script>
+  <script src="https://unpkg.com/vue-router"></script>
   <script src="https://unpkg.com/vuetify"></script>
   <script src="https://unpkg.com/ccxt"></script>
+  <script src="js/market-panel.js"></script>
+  <script src="js/trade-panel.js"></script>
+  <script src="js/details-panel.js"></script>
+  <script src="js/settings-panel.js"></script>
   <script src="js/main.js"></script>
 </body>
 

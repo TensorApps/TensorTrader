@@ -1,12 +1,17 @@
+#app {
+  min-width: 500px !important;
+  min-height: 600px !important;
+}
+
 .selected-tab {
-    background: #424242;
-    opacity: 1 !important;
+  background: #424242;
+  opacity: 1 !important;
 }
 
 .tabs__slider {
-    display: none;
+  display: none;
 }
 
-.positions-table * {
-    background: #292929 !important;
+.orders-table * {
+  background: #292929 !important;
 }

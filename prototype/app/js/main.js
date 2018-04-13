@@ -1,76 +1,64 @@
-Vue.component('page', {
-    template: '#page',
-    data() {
-        return {
-            exchanges: ['Binance', 'Bittrex', 'GDAX', 'KuCoin'],
-            markets: ['BTC/USD', 'ETH/USD', 'LTC/USD', 'NEO/USD']
-        };
-    }
+/* Pages config */
+const NotFound = {
+  template: `
+<v-container fluid grid-list-lg>
+  <settings-panel></settings-panel>
+</v-container>`
+};
+
+const TradingPage = {
+  template: `
+<v-container fluid grid-list-lg>
+  <market-panel></market-panel>
+  <trade-panel></trade-panel>
+  <details-panel></details-panel>
+</v-container>`
+};
+
+const SettingsPage = {
+  template: `
+<v-container fluid grid-list-lg>
+  <settings-panel></settings-panel>
+</v-container>`
+};
+
+/* Router config */
+const router = new VueRouter({
+  routes: [
+    {
+      path: '/trading',
+      component: TradingPage
+    },
+    {
+      path: '/settings',
+      component: SettingsPage
+    },
+    { path: '*', redirect: '/trading' }
+  ]
 });
 
-Vue.component('positions', {
-    template: '#positions',
-    data() {
-        return {
-            headers: [
-                {
-                    text: 'EXCHANGE',
-                    value: 'exchange'
-                },
-                {
-                    text: 'PAIR',
-                    value: 'pair'
-                },
-                {
-                    text: 'PRICE',
-                    value: 'price'
-                },
-                {
-                    text: 'AMOUNT',
-                    value: 'amount'
-                }
-            ],
-            items: [
-                {
-                    value: false,
-                    exchange: 'Binance',
-                    pair: 'BTC/USD',
-                    price: 7123,
-                    amount: 1.23
-                },
-                {
-                    value: false,
-                    exchange: 'Binance',
-                    pair: 'ETH/USD',
-                    price: 350,
-                    amount: 4.56
-                },
-                {
-                    value: false,
-                    exchange: 'Binance',
-                    pair: 'NEO/USD',
-                    price: 53,
-                    amount: 78.9
-                }
-            ]
-        };
-    }
-});
-
+/* Vue config */
 new Vue({
-    el: '#app',
-    data: {
-        drawer: false,
-        navItems: [
-            {
-                icon: 'dashboard',
-                title: 'Dashboard'
-            },
-            {
-                icon: 'settings',
-                title: 'Settings'
-            }
-        ],
-        title: 'TRADING'
-    }
+  el: '#app',
+  router,
+  data: {
+    drawer: false,
+    loading: true,
+    title: 'TRADING',
+    navItems: [
+      {
+        icon: 'import_export',
+        title: 'Trading',
+        path: '/trading'
+      },
+      {
+        icon: 'settings',
+        title: 'Settings',
+        path: '/settings'
+      }
+    ]
+  },
+  mounted() {
+    this.loading = false;
+  }
 });
