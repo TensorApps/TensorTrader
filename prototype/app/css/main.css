@@ -1,0 +1,12 @@
+.selected-tab {
+    background: #424242;
+    opacity: 1 !important;
+}
+
+.tabs__slider {
+    display: none;
+}
+
+.positions-table * {
+    background: #292929 !important;
+}

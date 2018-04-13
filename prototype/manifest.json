@@ -1,0 +1,19 @@
+{
+    "manifest_version": 2,
+    "name": "TensorTrader",
+    "description": "TensorTrader browser extension",
+    "version": "0.0.1",
+    "icons": { "128": "app/img/icon.png" },
+    "permissions": ["activeTab", "declarativeContent", "storage"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": true
+    },
+    "page_action": {
+        "default_popup": "app/index.html",
+        "default_icon": {
+            "128": "app/img/icon.png"
+        }
+    },
+    "content_security_policy": "script-src 'self' 'unsafe-eval' https://unpkg.com; object-src 'self'"
+}
