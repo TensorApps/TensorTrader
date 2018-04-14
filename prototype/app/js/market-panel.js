@@ -34,7 +34,7 @@ Vue.component('market-panel', {
     // could something go wrong?
     this.exchanges = this.getExchanges();
     
-    // select the first fav exhange (bitfinex hardcored for now)
+    // select the first fav exchange (bitfinex hardcoded for now)
     // this.exchange = this.exchanges.find( e => e.value == 'defaultExchange' ).value;
     this.exchange = this.exchanges.length ? 'bitfinex' : '';
   },
@@ -42,7 +42,7 @@ Vue.component('market-panel', {
     // get all exchances
     getExchanges: function() {
     
-      // for e.g. some favorite exhanges see settings
+      // for e.g. filter favorite exchanges, see settings
       /*
       let favExchanges = [
         { text: 'Binance', value: 'binance', sort: 10 },
@@ -69,14 +69,14 @@ Vue.component('market-panel', {
       return exchanges;
     },
     
-    // get maket from exhance
+    // get maket from exchange
     getMarkets: async function(exchangeId) {
       let markets = []
+      // change indicators
+      this.exchangeError = false;
+      this.marketsLoading = true;
+  
       try {
-        // change indicator
-        this.exchangeError = false;
-        this.marketsLoading = true;
-        
         // we need to cache sth. here?
         // create a new exhange
         let exchange = new ccxt[exchangeId]();
