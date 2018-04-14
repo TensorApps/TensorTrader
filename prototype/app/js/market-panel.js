@@ -5,6 +5,7 @@ Vue.component('market-panel', {
   <v-flex xs6>
     <v-card class="pa-3">
       <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="exchange" multi-line autocomplete></v-select>
+      <v-alert type="error" dismissible v-model="exchangeError"> {{exchangeErrorText}} </v-alert>
     </v-card>
   </v-flex>
   <v-flex xs6>
@@ -19,8 +20,13 @@ Vue.component('market-panel', {
       markets: [],
       marketsLoading: false,
       exchange: '',
-      market: ''
+      market: '',
+      exchangeError: false,
+      exchangeErrorText: "",
     };
+  },
+  created() {
+    this.exchange = this.exchanges[0].value;
   },
   methods: {
     getExchanges: function() {
@@ -45,18 +51,28 @@ Vue.component('market-panel', {
     },
     getMarkets: async function(exchangeId) {
       this.marketsLoading = true;
-      let exchange = new ccxt[exchangeId]();
-      exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
-      await exchange.loadMarkets();
-      let markets = Object.keys(await exchange.markets).sort();
+      try {
+        let exchange = new ccxt[exchangeId]();
+        exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
+        await exchange.loadMarkets();
+        let markets = Object.keys(await exchange.markets).sort();        
+        return markets;
+      } catch (err) {
+        this.exchangeError = true;
+        this.exchangeErrorText = err.message;
+        console.log('err: ',err);
+      } finally {
+        this.marketsLoading = false;
+      }
       //console.log(markets);
-      this.marketsLoading = false;
-      return markets;
+      
+
     }
   },
   watch: {
     exchange: function(exchangeId) {
       this.getMarkets(exchangeId).then(markets => (this.markets = markets));
+      this.exchangeError = false;
     }
   }
 });
