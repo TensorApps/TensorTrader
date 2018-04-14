@@ -55,7 +55,7 @@ Vue.component('market-panel', {
         let exchange = new ccxt[exchangeId]();
         exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
         await exchange.loadMarkets();
-        let markets = Object.keys(await exchange.markets).sort();        
+        let markets = Object.keys(exchange.markets).sort();        
         return markets;
       } catch (err) {
         this.exchangeError = true;
