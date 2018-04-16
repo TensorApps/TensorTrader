@@ -37,7 +37,17 @@ const router = new VueRouter({
   ]
 });
 
+/* Storage config */
+Vue.use(VueStorage, {
+  namespace: 'vuejs__', // key prefix
+  name: 'store', // name variable Vue.[ls] or this.[$ls],
+  storage: 'local' // storage type: session, local, memory
+});
+
 /* Vue config */
+Vue.config.productionTip = false;
+Vue.config.debug = true; // turn on debugging mode
+
 new Vue({
   el: '#app',
   router,

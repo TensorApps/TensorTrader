@@ -5,7 +5,7 @@ Vue.component('market-panel', {
   <v-flex xs6>
     <v-card class="pa-3">
       <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="exchange" multi-line autocomplete></v-select>
-      <v-alert type="error" dismissible v-model="exchangeError"> {{exchangeErrorText}} </v-alert>
+      <v-alert type="error" dismissible v-if="error" v-model="error">{{error}}</v-alert>
     </v-card>
   </v-flex>
   <v-flex xs6>
@@ -14,34 +14,46 @@ Vue.component('market-panel', {
     </v-card>
   </v-flex>
 </v-layout>`,
+
   data() {
     return {
       // selected exchange, all exchanges
       exchange: '',
       exchanges: [],
-      
+
       // selected market, all markets, indicator
       market: '',
       markets: [],
       marketsLoading: false,
-      
-      // error indicator, message
-      exchangeError: false,
-      exchangeErrorText: "",
+
+      // error message/indicator
+      error: ''
     };
   },
-  created() {
-    // could something go wrong?
+
+  created: function() {
     this.exchanges = this.getExchanges();
-    
-    // select the first fav exchange (bitfinex hardcoded for now)
-    // this.exchange = this.exchanges.find( e => e.value == 'defaultExchange' ).value;
-    this.exchange = this.exchanges.length ? 'bitfinex' : '';
+
+    this.exchange = this.$store.get('exchange', 'bitfinex');
+    this.market = this.$store.get('market', 'BTC/USD');
   },
+
+  watch: {
+    exchange: function(exchangeId) {
+      this.error = '';
+      this.getMarkets(exchangeId).then(markets => (this.markets = markets));
+      this.$store.set('exchange', exchangeId);
+      console.log('Setting exchange to', exchangeId);
+    },
+    market: function(val) {
+      this.$store.set('market', val);
+      console.log('Setting market to', val);
+    }
+  },
+
   methods: {
     // get all exchances
     getExchanges: function() {
-    
       // for e.g. filter favorite exchanges, see settings
       /*
       let favExchanges = [
@@ -54,60 +66,41 @@ Vue.component('market-panel', {
         { text: 'KuCoin', value: 'kucoin', sort: 70 }
       ];
       */
-      
+
       let exchanges = [];
       for (let exchangeId of ccxt.exchanges) {
-        
         // do we really need all instances here?
         let exchange = new ccxt[exchangeId]();
-        
+
         //console.log(exchange);
         exchanges.push({ text: exchange.name, value: exchange.id });
-      
       }
       //console.log(exchanges);
       return exchanges;
     },
-    
+
     // get maket from exchange
     getMarkets: async function(exchangeId) {
-      let markets = []
-      // change indicators
-      this.exchangeError = false;
+      let markets = [];
       this.marketsLoading = true;
-  
+
       try {
-        // we need to cache sth. here?
         // create a new exhange
         let exchange = new ccxt[exchangeId]();
- 
-        // be more verbose
         //exchange.verbose = true;
-        
-        // dyttc?
+        // specify CORS proxy
         exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
-        
-        // another try/catch block??
+        // load markets info from exchange
         await exchange.loadMarkets();
-        //console.log(exchange.markets);
-
-        // sort markets
         markets = Object.keys(exchange.markets).sort();
-
       } catch (err) {
         // catch the error and set ui states
-        console.log('err: ',err);
-        this.exchangeError = true;
-        this.exchangeErrorText = err.message;
+        console.error('Error:', err);
+        this.error = err.message;
       }
-      
+
       this.marketsLoading = false;
       return markets;
-    }
-  },
-  watch: {
-    exchange: function(exchangeId) {
-      this.getMarkets(exchangeId).then(markets => (this.markets = markets));
     }
   }
 });
