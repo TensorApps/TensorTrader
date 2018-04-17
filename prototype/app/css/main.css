@@ -19,3 +19,14 @@ body {
 .orders-table * {
   background: #303030 !important;
 }
+
+.exchAvatar {
+  margin-right: 32px !important;
+  margin-left: 18px !important;
+}
+
+.avatar--tile .exchLogo {
+  padding-left: 5px;
+  height:25px !important;
+  width:85px !important;
+}

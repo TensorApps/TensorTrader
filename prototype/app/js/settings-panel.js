@@ -11,15 +11,15 @@ Vue.component('settings-panel', {
         <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="favExchanges" multi-line autocomplete chips multiple>
           <template slot="selection" slot-scope="data">
             <v-chip close color="grey darken-1" @input="data.parent.selectItem(data.item)" :selected="data.selected" class="chip--select-multi" :key="data.value">
-              <v-avatar>
-                <img :src="data.item.avatar">
+              <v-avatar tile class="exchAvatar" >
+                <img :src="data.item.avatar" class="exchLogo">
               </v-avatar>
               {{data.item.text}}
             </v-chip>
           </template>
           <template slot="item" slot-scope="data">
             <v-list-tile-avatar>
-              <img :src="data.item.avatar">
+              <img :src="data.item.avatar" >
             </v-list-tile-avatar>
             <v-list-tile-content>
               <v-list-tile-title v-html="data.item.text"></v-list-tile-title>
