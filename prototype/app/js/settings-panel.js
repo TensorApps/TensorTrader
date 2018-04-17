@@ -10,6 +10,7 @@ Vue.component('settings-panel', {
       <v-card-text>
         <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="favExchanges" multi-line autocomplete chips multiple></v-select>
         <v-alert type="error" dismissible v-if="error" v-model="error">{{error}}</v-alert>
+        <v-switch label="Show only favourite exchanges " v-model="showOnlyFav"></v-switch>
       </v-card-text>
     </v-card>
   </v-flex>
@@ -28,6 +29,7 @@ Vue.component('settings-panel', {
   data() {
     return {
       error: '',
+      showOnlyFav: false,
       favExchanges: ['binance', 'bittrex', 'bitfinex', 'gdax', 'kucoin'],
       favMarkets: ['BTC/USD', 'ETH/USD', 'LTC/USD', 'NEO/USD', 'STRAT/USD'],
       apiKeys: { Binance: { apiKey: 'XXX', apiSecret: 'XXXXX' } }
@@ -39,6 +41,7 @@ Vue.component('settings-panel', {
 
     this.favExchanges = this.$store.get('favExchanges', []);
     this.favMarkets = this.$store.get('favMarkets', []);
+    this.showOnlyFav = this.$store.get('showOnlyFav',false);
   },
 
   watch: {
@@ -46,11 +49,24 @@ Vue.component('settings-panel', {
       this.error = '';
       this.$store.set('favExchanges', this.favExchanges);
       console.log('Setting favExchanges to', this.favExchanges);
+      //if there are no favourite exchanges, set to show all exchanges
+      if (!this.favExchanges.length) this.showOnlyFav = false; 
     },
     favMarkets: function() {
       this.error = '';
       this.$store.set('favMarkets', this.favMarkets);
       console.log('Setting favMarkets to', this.favMarkets);
+    },
+    showOnlyFav: function() {
+      if (!this.favExchanges.length && this.showOnlyFav) {
+        this.error = 'Set some favourite exchanges first!';
+        this.showOnlyFav = false;
+        // return;
+      } else {
+        this.$store.set('showOnlyFav',this.showOnlyFav);
+        console.log('Setting showOnlyFav to ', this.showOnlyFav);
+      }       
+      
     }
   },
 
@@ -62,7 +78,13 @@ Vue.component('settings-panel', {
         let exchange = new ccxt[exchangeId]();
         exchanges.push({ text: exchange.name, value: exchange.id, avatar: exchange.urls['logo'] });
       }
-      return exchanges;
+
+      //sort exchanges - favorites first
+      let aFavs = this.$store.get('favExchanges',[]);
+      let aFavsDetail = exchanges.filter(item => aFavs.includes(item.value));
+      let aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
+      let aSorted = aFavsDetail.concat(aNonFav);
+      return aSorted;
     }
   }
 });

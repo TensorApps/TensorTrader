@@ -65,6 +65,7 @@ Vue.component('market-panel', {
 
     this.favExchanges = this.$store.get('favExchanges', []);
     this.favMarkets = this.$store.get('favMarkets', []);    
+    this.showOnlyFav = this.$store.get('showOnlyFav',false);
   },
 
   watch: {
@@ -135,8 +136,14 @@ Vue.component('market-panel', {
       //console.log(exchanges);
       //sort exchanges - favorites first
       let aFavs = this.$store.get('favExchanges',[]);
+      this.showOnlyFav = this.$store.get('showOnlyFav',false);
       let aFavsDetail = exchanges.filter(item => aFavs.includes(item.value));
-      let aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
+      let aNonFav = [];
+      //setting option to show all items or just favourites
+      //if there are no favorites, show all items
+      if (!this.showOnlyFav || !aFavs.length) {
+        aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
+      }
       let aSorted = aFavsDetail.concat(aNonFav);
       return aSorted;
     },
@@ -164,8 +171,14 @@ Vue.component('market-panel', {
       this.marketsLoading = false;
       //sort markets - favorites first
       let aFavs = this.$store.get('favMarkets',[]);
+      this.showOnlyFav = this.$store.get('showOnlyFav',false);
       let aFavsDetail = markets.filter(item => aFavs.includes(item));
-      let aNonFav = markets.filter(item => !aFavs.includes(item));
+      let aNonFav = [];
+      //setting option to show all items or just favourites
+      //if there are no favorites, show all items
+      if (!this.showOnlyFav || !aFavs.length) {
+        aNonFav = markets.filter(item => !aFavs.includes(item));
+      }      
       let aSorted = aFavsDetail.concat(aNonFav);
 
       return aSorted;
