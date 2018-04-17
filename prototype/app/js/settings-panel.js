@@ -8,7 +8,24 @@ Vue.component('settings-panel', {
         <h3><v-icon>swap_horiz</v-icon> User Exchanges</h3>
       </v-card-title>
       <v-card-text>
-        <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="favExchanges" multi-line autocomplete chips multiple></v-select>
+        <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="favExchanges" multi-line autocomplete chips multiple>
+          <template slot="selection" slot-scope="data">
+            <v-chip close color="grey darken-1" @input="data.parent.selectItem(data.item)" :selected="data.selected" class="chip--select-multi" :key="data.value">
+              <v-avatar>
+                <img :src="data.item.avatar">
+              </v-avatar>
+              {{data.item.text}}
+            </v-chip>
+          </template>
+          <template slot="item" slot-scope="data">
+            <v-list-tile-avatar>
+              <img :src="data.item.avatar">
+            </v-list-tile-avatar>
+            <v-list-tile-content>
+              <v-list-tile-title v-html="data.item.text"></v-list-tile-title>
+            </v-list-tile-content>
+          </template>
+        </v-select>
         <v-alert type="error" dismissible v-if="error" v-model="error">{{error}}</v-alert>
         <v-switch label="Show only favourite exchanges " v-model="showOnlyFav"></v-switch>
       </v-card-text>
