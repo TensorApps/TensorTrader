@@ -1,68 +1,62 @@
 /* Settings panel */
 Vue.component('settings-panel', {
   template: `
-<v-layout row wrap>
+<v-layout row wrap class="pa-1">
+  <h3><v-icon>vpn_key</v-icon> Exchange API Keys</h3>
   <v-flex xs12>
-    <v-card class="pa-3">
-      <v-card-title>
-        <h3><v-icon>swap_horiz</v-icon> User Exchanges</h3>
-      </v-card-title>
-      <v-card-text>
-        <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="favExchanges" multi-line autocomplete chips multiple></v-select>
-        <v-alert type="error" dismissible v-if="error" v-model="error">{{error}}</v-alert>
-      </v-card-text>
-    </v-card>
-  </v-flex>
-  <v-flex xs12>
-    <v-card class="pa-3">
-      <v-card-title>
-        <h3><v-icon>vpn_key</v-icon> Exchange API Keys</h3>
-      </v-card-title>
-      <v-card-text>
-        TODO
-      </v-card-text>
-    </v-card>
+    <template v-if="favExchanges.length">
+      <v-expansion-panel popout>
+        <v-expansion-panel-content v-for="[exchange, config] in Object.entries(apiConfig)" :key="exchange">
+          <div slot="header"><h4>{{getExchangeName(exchange)}}</h4></div>
+          <v-card class="px-2">
+            <v-card-text>
+              <v-form>
+                <v-text-field label="API Key" v-model="config.apiKey" @change="updateExchangeInfo"></v-text-field>
+                <v-text-field label="Secret" v-model="config.secret" @change="updateExchangeInfo"></v-text-field>
+                <v-text-field label="Passphrase" v-model="config.password" @change="updateExchangeInfo"></v-text-field>
+              </v-form>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </template>
+    <template v-else>
+      <v-alert color="info" icon="info" :value="true">
+        <b>No favorite exchanges yet!</b><br/><small> Please select first some favorites in the Trading view.</small>
+      </v-alert>
+    </template>
   </v-flex>
 </v-layout>`,
 
   data() {
     return {
-      error: '',
-      favExchanges: ['binance', 'bittrex', 'bitfinex', 'gdax', 'kucoin'],
-      favMarkets: ['BTC/USD', 'ETH/USD', 'LTC/USD', 'NEO/USD', 'STRAT/USD'],
-      apiKeys: { Binance: { apiKey: 'XXX', apiSecret: 'XXXXX' } }
+      favExchanges: [],
+      favMarkets: [],
+      apiConfig: {}
     };
   },
 
   created: function() {
-    this.exchanges = this.getExchanges();
-
     this.favExchanges = this.$store.get('favExchanges', []);
     this.favMarkets = this.$store.get('favMarkets', []);
-  },
 
-  watch: {
-    favExchanges: function() {
-      this.error = '';
-      this.$store.set('favExchanges', this.favExchanges);
-      console.log('Setting favExchanges to', this.favExchanges);
-    },
-    favMarkets: function() {
-      this.error = '';
-      this.$store.set('favMarkets', this.favMarkets);
-      console.log('Setting favMarkets to', this.favMarkets);
+    let defaultApiConfig = {};
+    for (let exchange of this.favExchanges) {
+      defaultApiConfig[exchange] = { apiKey: '', secret: '', password: '' };
     }
+
+    let secureApiConfig = this.$store.get('apiConfig');
+    this.apiConfig = secureApiConfig ? Crypto.decrypt(Crypto.decompress(secureApiConfig), userPassphrase) : defaultApiConfig;
   },
 
   methods: {
-    // get all exchances
-    getExchanges: function() {
-      let exchanges = [];
-      for (let exchangeId of ccxt.exchanges) {
-        let exchange = new ccxt[exchangeId]();
-        exchanges.push({ text: exchange.name, value: exchange.id, avatar: exchange.urls['logo'] });
-      }
-      return exchanges;
+    getExchangeName: function(exchangeId) {
+      let exchange = new ccxt[exchangeId]();
+      return exchange.name;
+    },
+    updateExchangeInfo: function(val) {
+      let secureApiConfig = Crypto.compress(Crypto.encrypt(this.apiConfig, userPassphrase));
+      this.$store.set('apiConfig', secureApiConfig);
     }
   }
 });
