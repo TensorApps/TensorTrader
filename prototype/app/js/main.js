@@ -44,6 +44,24 @@ Vue.use(VueStorage, {
   storage: 'local' // storage type: session, local, memory
 });
 
+/* Secure store + cryptography */
+const userPassphrase = 'VueJS Rulez!'; // TODO: make dialog for that!
+
+const Crypto = {
+  compress: function(value) {
+    return LZString.compress(value);
+  },
+  decompress: function(value) {
+    return LZString.decompress(value);
+  },
+  encrypt: function(value, password) {
+    return CryptoJS.AES.encrypt(JSON.stringify(value), password).toString();
+  },
+  decrypt: function(value, password) {
+    return JSON.parse(CryptoJS.AES.decrypt(value, password).toString(CryptoJS.enc.Utf8));
+  }
+};
+
 /* Vue config */
 Vue.config.productionTip = false;
 Vue.config.debug = true; // turn on debugging mode

@@ -1,12 +1,10 @@
 /* Settings panel */
 Vue.component('settings-panel', {
   template: `
-<v-layout row wrap>
+<v-layout row wrap class="pa-1">
   <v-flex xs12>
+    <h3><v-icon>swap_horiz</v-icon> User Exchanges</h3>
     <v-card class="pa-3">
-      <v-card-title>
-        <h3><v-icon>swap_horiz</v-icon> User Exchanges</h3>
-      </v-card-title>
       <v-card-text>
         <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="favExchanges" multi-line autocomplete chips multiple>
           <template slot="selection" slot-scope="data">
@@ -31,15 +29,30 @@ Vue.component('settings-panel', {
       </v-card-text>
     </v-card>
   </v-flex>
+
   <v-flex xs12>
-    <v-card class="pa-3">
-      <v-card-title>
-        <h3><v-icon>vpn_key</v-icon> Exchange API Keys</h3>
-      </v-card-title>
-      <v-card-text>
-        TODO
-      </v-card-text>
-    </v-card>
+    <h3><v-icon>vpn_key</v-icon> Exchange API Keys</h3>
+    <template v-if="favExchanges.length">
+      <v-expansion-panel popout>
+        <v-expansion-panel-content v-for="[exchange, config] in Object.entries(apiConfig)" :key="exchange">
+          <div slot="header"><h4>{{getExchangeName(exchange)}}</h4></div>
+          <v-card class="px-2">
+            <v-card-text>
+              <v-form>
+                <v-text-field label="API Key" v-model="config.apiKey" @change="updateExchangeInfo"></v-text-field>
+                <v-text-field label="Secret" v-model="config.secret" @change="updateExchangeInfo"></v-text-field>
+                <v-text-field label="Passphrase" v-model="config.password" @change="updateExchangeInfo"></v-text-field>
+              </v-form>
+            </v-card-text>
+          </v-card>
+        </v-expansion-panel-content>
+      </v-expansion-panel>
+    </template>
+    <template v-else>
+      <v-alert color="info" icon="info" :value="true">
+        <b>No favorite exchanges yet!</b><br/><small> Please select first some favorites in the Trading view.</small>
+      </v-alert>
+    </template>
   </v-flex>
 </v-layout>`,
 
@@ -47,18 +60,23 @@ Vue.component('settings-panel', {
     return {
       error: '',
       showOnlyFav: false,
-      favExchanges: ['binance', 'bittrex', 'bitfinex', 'gdax', 'kucoin'],
-      favMarkets: ['BTC/USD', 'ETH/USD', 'LTC/USD', 'NEO/USD', 'STRAT/USD'],
-      apiKeys: { Binance: { apiKey: 'XXX', apiSecret: 'XXXXX' } }
+      favExchanges: [],
+      favMarkets: [],
+      apiConfig: {}
     };
   },
 
   created: function() {
     this.exchanges = this.getExchanges();
-
+    this.showOnlyFav = this.$store.get('showOnlyFav', false);
     this.favExchanges = this.$store.get('favExchanges', []);
     this.favMarkets = this.$store.get('favMarkets', []);
-    this.showOnlyFav = this.$store.get('showOnlyFav',false);
+    let defaultApiConfig = {};
+    for (let exchange of this.favExchanges) {
+      defaultApiConfig[exchange] = { apiKey: '', secret: '', password: '' };
+    }
+    let secureApiConfig = this.$store.get('apiConfig');
+    this.apiConfig = secureApiConfig ? Crypto.decrypt(Crypto.decompress(secureApiConfig), userPassphrase) : defaultApiConfig;
   },
 
   watch: {
@@ -66,8 +84,8 @@ Vue.component('settings-panel', {
       this.error = '';
       this.$store.set('favExchanges', this.favExchanges);
       console.log('Setting favExchanges to', this.favExchanges);
-      //if there are no favourite exchanges, set to show all exchanges
-      if (!this.favExchanges.length) this.showOnlyFav = false; 
+      // if there are no favourite exchanges, set to show all exchanges
+      if (!this.favExchanges.length) this.showOnlyFav = false;
     },
     favMarkets: function() {
       this.error = '';
@@ -80,14 +98,23 @@ Vue.component('settings-panel', {
         this.showOnlyFav = false;
         // return;
       } else {
-        this.$store.set('showOnlyFav',this.showOnlyFav);
+        this.$store.set('showOnlyFav', this.showOnlyFav);
         console.log('Setting showOnlyFav to ', this.showOnlyFav);
-      }       
-      
+      }
     }
   },
 
   methods: {
+    // get real exchange name from id
+    getExchangeName: function(exchangeId) {
+      let exchange = new ccxt[exchangeId]();
+      return exchange.name;
+    },
+    // update exchange info in secure store
+    updateExchangeInfo: function(val) {
+      let secureApiConfig = Crypto.compress(Crypto.encrypt(this.apiConfig, userPassphrase));
+      this.$store.set('apiConfig', secureApiConfig);
+    },
     // get all exchances
     getExchanges: function() {
       let exchanges = [];
@@ -95,9 +122,8 @@ Vue.component('settings-panel', {
         let exchange = new ccxt[exchangeId]();
         exchanges.push({ text: exchange.name, value: exchange.id, avatar: exchange.urls['logo'] });
       }
-
-      //sort exchanges - favorites first
-      let aFavs = this.$store.get('favExchanges',[]);
+      // sort exchanges - favorites first
+      let aFavs = this.$store.get('favExchanges', []);
       let aFavsDetail = exchanges.filter(item => aFavs.includes(item.value));
       let aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
       let aSorted = aFavsDetail.concat(aNonFav);
