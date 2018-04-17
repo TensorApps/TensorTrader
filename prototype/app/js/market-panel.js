@@ -63,6 +63,7 @@ Vue.component('market-panel', {
     this.exchange = this.$store.get('exchange', 'bitfinex');
     this.market = this.$store.get('market', 'BTC/USD');
 
+    this.showOnlyFav = this.$store.get('showOnlyFav', false);
     this.favExchanges = this.$store.get('favExchanges', []);
     this.favMarkets = this.$store.get('favMarkets', []);
   },
@@ -116,14 +117,20 @@ Vue.component('market-panel', {
         let exchange = new ccxt[exchangeId]();
         exchanges.push({ text: exchange.name, value: exchange.id });
       }
-      // sort exchanges - favorites first
+      //console.log(exchanges);
+      //sort exchanges - favorites first
+      this.showOnlyFav = this.$store.get('showOnlyFav', false);
       let aFavs = this.$store.get('favExchanges', []);
       let aFavsDetail = exchanges.filter(item => aFavs.includes(item.value));
-      let aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
+      let aNonFav = [];
+      //setting option to show all items or just favourites
+      //if there are no favorites, show all items
+      if (!this.showOnlyFav || !aFavs.length) {
+        aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
+      }
       let aSorted = aFavsDetail.concat(aNonFav);
       return aSorted;
     },
-
     // get maket from exchange
     getMarkets: async function(exchangeId) {
       let markets = [];
@@ -144,9 +151,15 @@ Vue.component('market-panel', {
       }
       this.marketsLoading = false;
       // sort markets - favorites first
+      this.showOnlyFav = this.$store.get('showOnlyFav', false);
       let aFavs = this.$store.get('favMarkets', []);
       let aFavsDetail = markets.filter(item => aFavs.includes(item));
-      let aNonFav = markets.filter(item => !aFavs.includes(item));
+      let aNonFav = [];
+      //setting option to show all items or just favourites
+      //if there are no favorites, show all items
+      if (!this.showOnlyFav || !aFavs.length) {
+        aNonFav = markets.filter(item => !aFavs.includes(item));
+      }
       let aSorted = aFavsDetail.concat(aNonFav);
       return aSorted;
     }
