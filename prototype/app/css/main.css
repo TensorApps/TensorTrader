@@ -20,13 +20,20 @@ body {
   background: #303030 !important;
 }
 
-.exchAvatar {
-  margin-right: 32px !important;
-  margin-left: 18px !important;
+/* Exchange avatars */
+.avatar--tile.exchAvatar {
+  width: 85px !important;
+  margin: 0 8px 0 -2px !important;
 }
 
-.avatar--tile .exchLogo {
-  padding-left: 5px;
-  height:25px !important;
-  width:85px !important;
+.exchAvatar > .avatar--tile {
+  margin-right: 18px !important;
+  height: 25px !important;
+  width: 85px !important;
+}
+
+img.exchLogo {
+  border-radius: 24px !important;
+  height: 25px !important;
+  width: 85px !important;
 }
