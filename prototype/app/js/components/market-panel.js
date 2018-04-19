@@ -62,8 +62,8 @@ Vue.component('market-panel', {
   },
 
   created: function() {
-    this.exchange = this.$store.get('exchange');
-    this.market = this.$store.get('market');
+    this.exchange = this.$store.get('exchange',''); //need to set default value, because otherwise it returns undefined and it causes problems
+    this.market = this.$store.get('market','');
 
     this.favExchanges = this.$store.get('favExchanges', []);
     this.favExchangesOnly = this.$store.get('favExchangesOnly', false);
