@@ -61,13 +61,6 @@ router.afterEach((to, from) => {
 });
 
 /* Storage config */
-/*
-Vue.use(VueStorage, {
-  namespace: 'trader__', // key prefix
-  name: 'store', // name variable Vue.[ls] or this.[$ls],
-  storage: 'local' // storage type: session, local, memory
-});
-*/
 Vue.prototype.$store = new Store(StoreType.Local, 'trader__');
 Vue.prototype.$session = new Store(StoreType.Session, 'trader__');
 Vue.prototype.$secureSession = new SecureStore(StoreType.Local, 'trader__');
@@ -101,11 +94,3 @@ const App = new Vue({
     this.loading = false;
   }
 });
-/*
-Vue[_options.name] = SessionStore;
-Object.defineProperty(Vue.prototype, '$session', {
-  get() {
-    return SessionStore;
-  }
-});
-*/
