@@ -7,15 +7,16 @@ Vue.component('market-panel', {
       <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="exchange" multi-line autocomplete>
         <template slot="item" slot-scope="data">
           <v-list-tile-action>
-            <v-btn icon ripple @click.stop="toggleToFavExch(data.item.value)">  
+            <v-btn icon ripple @click.stop="toggleToFavExch(data.item.value)">
               <v-icon color="yellow darken">{{ getFavIconExch(data.item.value) }}</v-icon>
             </v-btn>
-          </v-list-tile-action>           
+          </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title v-html="data.item.text"></v-list-tile-title>
-          </v-list-tile-content>       
+          </v-list-tile-content>
         </template>
       </v-select>
+      <v-switch label="Favorite exchanges only" v-model="favExchangesOnly" :disabled="!this.favExchanges.length"></v-switch>
       <v-alert type="error" dismissible v-if="error" v-model="error">{{ error }}</v-alert>
     </v-card>
   </v-flex>
@@ -24,42 +25,43 @@ Vue.component('market-panel', {
       <v-select id="market" label="MARKET" :items="markets" v-model="market" :loading="marketsLoading" multi-line autocomplete>
         <template slot="item" slot-scope="data">
           <v-list-tile-action>
-            <v-btn icon ripple @click.stop="toggleToFavMarket(data.item)">  
+            <v-btn icon ripple @click.stop="toggleToFavMarket(data.item)">
               <v-icon color="yellow darken">{{ getFavIconMarket(data.item) }}</v-icon>
             </v-btn>
-          </v-list-tile-action>           
+          </v-list-tile-action>
           <v-list-tile-content>
             <v-list-tile-title v-html="data.item"></v-list-tile-title>
-          </v-list-tile-content>       
-        </template>      
+          </v-list-tile-content>
+        </template>
       </v-select>
+      <v-switch label="Favorite markets only" v-model="favMarketsOnly" :disabled="!this.favMarkets.length"></v-switch>
     </v-card>
   </v-flex>
 </v-layout>`,
 
   data() {
     return {
-      // selected exchange, all exchanges
+      // Selected exchange, all exchanges
       exchange: '',
       exchanges: [],
-
-      // selected market, all markets, indicator
+      // Selected market, all markets
       market: '',
       markets: [],
-      marketsLoading: false,
-
-      // favorites
+      // Favorite exchanges/markets
       favExchanges: [],
+      favExchangesOnly: false,
       favMarkets: [],
-
+      favMarketsOnly: false,
+      // exchange API settings
+      apiConfig: {},
+      // markets loading indicator
+      marketsLoading: false,
       // error message/indicator
       error: ''
     };
   },
 
   created: function() {
-    this.exchanges = this.getExchanges();
-
     this.exchange = this.$store.get('exchange');
     this.market = this.$store.get('market');
 
@@ -68,18 +70,32 @@ Vue.component('market-panel', {
 
     this.favMarkets = this.$store.get('favMarkets', []);
     this.favMarketsOnly = this.$store.get('favMarketsOnly', false);
+
+    this.exchanges = this.getExchanges();
+
+    this.apiConfig = this.$secureSession.get('apiConfig', this.$root.userPassphrase);
   },
 
   watch: {
     exchange: function(exchangeId) {
       this.error = '';
-      if(exchangeId) this.getMarkets(exchangeId).then(markets => (this.markets = markets));
+      if (exchangeId) this.getMarkets(exchangeId).then(markets => (this.markets = markets));
       this.$store.set('exchange', exchangeId);
       console.log('Setting exchange to', exchangeId);
     },
     market: function(val) {
       this.$store.set('market', val);
       console.log('Setting market to', val);
+    },
+    favExchangesOnly: function() {
+      this.$store.set('favExchangesOnly', this.favExchangesOnly);
+      this.exchanges = this.getExchanges();
+      console.log('Setting favExchangesOnly to', this.favExchangesOnly);
+    },
+    favMarketsOnly: function() {
+      this.$store.set('favMarketsOnly', this.favMarketsOnly);
+      this.getMarkets(this.exchange).then(markets => (this.markets = markets));
+      console.log('Setting favMarketsOnly to', this.favMarketsOnly);
     }
   },
 
@@ -119,15 +135,11 @@ Vue.component('market-panel', {
         let exchange = new ccxt[exchangeId]();
         exchanges.push({ text: exchange.name, value: exchange.id });
       }
-      // use cached exchanges
-      //let exchanges = Object.keys(Exchanges);
       //sort exchanges - favorites first
-      this.favExchangesOnly = this.$store.get('favExchangesOnly', false);
-      let aFavs = this.$store.get('favExchanges', []);
+      let aFavs = this.favExchanges;
       let aFavsDetail = exchanges.filter(item => aFavs.includes(item.value));
       let aNonFav = [];
-      //setting option to show all items or just favourites
-      //if there are no favorites, show all items
+      // show all items or just favorites depending on switch
       if (!this.favExchangesOnly || !aFavs.length) {
         aNonFav = exchanges.filter(item => !aFavs.includes(item.value));
       }
@@ -154,12 +166,10 @@ Vue.component('market-panel', {
       }
       this.marketsLoading = false;
       // sort markets - favorites first
-      this.favMarketsOnly = this.$store.get('favMarketsOnly', false);
-      let aFavs = this.$store.get('favMarkets', []);
+      let aFavs = this.favMarkets;
       let aFavsDetail = markets.filter(item => aFavs.includes(item));
       let aNonFav = [];
-      //setting option to show all items or just favourites
-      //if there are no favorites, show all items
+      // show all items or just favorites depending on switch
       if (!this.favMarketsOnly || !aFavs.length) {
         aNonFav = markets.filter(item => !aFavs.includes(item));
       }
