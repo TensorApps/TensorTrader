@@ -60,9 +60,9 @@ Vue.component('settings-panel', {
           <v-card class="px-2">
             <v-card-text>
               <v-form>
-                <v-text-field label="API Key" v-model="apiConfig[exchange].apiKey" @change="updateApiConfig()"></v-text-field>
-                <v-text-field label="Secret" v-model="apiConfig[exchange].secret" @change="updateApiConfig()"></v-text-field>
-                <v-text-field label="Passphrase" v-model="apiConfig[exchange].password" @change="updateApiConfig()"></v-text-field>
+                <v-text-field label="API Key" v-model="apiConfig[exchange].apiKey" @change="updateApiConfig()" :append-icon="passHiddenAPI ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenAPI = !passHiddenAPI)" :type="passHiddenAPI ? 'password' : 'text'"></v-text-field>
+                <v-text-field label="Secret" v-model="apiConfig[exchange].secret" @change="updateApiConfig()" :append-icon="passHiddenSecret ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenSecret = !passHiddenSecret)" :type="passHiddenSecret ? 'password' : 'text'"></v-text-field>
+                <v-text-field label="Passphrase" v-model="apiConfig[exchange].password" @change="updateApiConfig()" :append-icon="passHiddenPass ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenPass = !passHiddenPass)" :type="passHiddenPass ? 'password' : 'text'"></v-text-field>
               </v-form>
             </v-card-text>
           </v-card>
@@ -99,7 +99,11 @@ Vue.component('settings-panel', {
       secret: [],
       password: [],
       exchangeInfo: {},
-      apiConfig: {}
+      apiConfig: {},
+
+      passHiddenAPI: true,
+      passHiddenSecret: true,
+      passHiddenPass: true
     };
   },
 
