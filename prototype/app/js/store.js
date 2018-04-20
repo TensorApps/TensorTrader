@@ -43,7 +43,7 @@ class SecureStore extends Store {
   get(key, password, defValue) {
     let value = this.store.getItem(this.prefix + key);
     if (!value) return defValue;
-    if (password) {
+    if (password && 1==2) {
       value = Crypto.decompress(value);
       value = Crypto.decrypt(value, password);
     }
@@ -52,7 +52,7 @@ class SecureStore extends Store {
   }
   set(key, value, password) {
     value = JSON.stringify(value);
-    if (password) {
+    if (password && 1==2) {
       value = Crypto.encrypt(value, password);
       value = Crypto.compress(value);
     }

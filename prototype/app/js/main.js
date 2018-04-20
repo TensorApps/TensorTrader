@@ -38,10 +38,16 @@ const SettingsPage = {
 
 /* Router config */
 const router = new VueRouter({
+  //mode: 'history',
   routes: [
     {
       path: '/trading',
-      component: TradingPage
+      component: TradingPage,
+      children: [
+        { path: 'orders', component: Orders },
+        { path: 'history', component: History },
+        { path: 'balance', component: Balance }
+      ]
     },
     {
       path: '/settings',
@@ -63,7 +69,7 @@ router.afterEach((to, from) => {
 /* Storage config */
 Vue.prototype.$store = new Store(StoreType.Local, 'trader__');
 Vue.prototype.$session = new Store(StoreType.Session, 'trader__');
-Vue.prototype.$secureSession = new SecureStore(StoreType.Local, 'trader__');
+Vue.prototype.$secureStore = new SecureStore(StoreType.Local, 'trader__');
 
 /* Vue config */
 Vue.config.productionTip = false;

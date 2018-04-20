@@ -7,6 +7,10 @@ body {
   min-height: 600px !important;
 }
 
+[v-cloak] {
+  display: none;
+}
+
 .selected-tab {
   background: #424242;
   opacity: 1 !important;

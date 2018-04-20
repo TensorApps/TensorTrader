@@ -118,7 +118,7 @@ Vue.component('settings-panel', {
     this.userPassphrase = this.$session.get('userPassphrase');
     console.log('User Passphrase: ', this.userPassphrase); // TODO: REMOVE!!!
 
-    this.apiConfig = this.$secureSession.get('apiConfig', this.userPassphrase, {});
+    this.apiConfig = this.$secureStore.get('apiConfig', this.userPassphrase, {});
 
     this.syncExchangeInfo();
   },
@@ -163,7 +163,7 @@ Vue.component('settings-panel', {
     } /*,
     apiConfig: {
       handler: function(val, oldVal) {
-        this.$secureSession.set('apiConfig', this.apiConfig, this.userPassphrase);
+        this.$secureStore.set('apiConfig', this.apiConfig, this.userPassphrase);
         //console.log('Setting apiConfig to ', this.apiConfig);
       },
       deep: true
@@ -191,7 +191,7 @@ Vue.component('settings-panel', {
     // update exchange API configuration info in secure store
     updateApiConfig: function() {
       console.log('Setting exchange API info to', this.apiConfig);
-      this.$secureSession.set('apiConfig', this.apiConfig, this.userPassphrase);
+      this.$secureStore.set('apiConfig', this.apiConfig, this.userPassphrase);
     },
     // get all exchances
     getExchanges: function() {

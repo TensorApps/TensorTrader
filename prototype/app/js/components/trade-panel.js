@@ -48,6 +48,7 @@ Vue.component('trade-panel', {
     </v-tabs>
   </v-flex>
 </v-layout>`,
+
   data() {
     return {
       exchange: {},
