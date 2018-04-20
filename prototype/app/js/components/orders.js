@@ -4,12 +4,13 @@ const Orders = Vue.component('orders', {
 <v-data-table class="elevation-2 orders-table" :headers="headers" :items="items" hide-actions>
   <template slot="items" slot-scope="props">
     <tr :class="tableLineClass(props.item.id)">
-    <td class="text-xs-left ">{{ props.item.exchange }}</td>
-    <td class="text-xs-left ">{{ props.item.pair }}</td>
-    <td class="text-xs-left ">{{ props.item.price }}</td>
-    <td class="text-xs-left ">{{ props.item.amount }}</td>
-    <td class="text-xs-left ">{{ props.item.status }}</td>
-    <td class="text-xs-left ">{{ props.item.type }}</td>
+      <td class="text-xs-left ">{{ props.item.datetime }}</td>
+      <td class="text-xs-left ">{{ props.item.exchange }}</td>
+      <td class="text-xs-left ">{{ props.item.pair }}</td>
+      <td class="text-xs-left ">{{ props.item.price }}</td>
+      <td class="text-xs-left ">{{ props.item.amount }}</td>
+      <td class="text-xs-left ">{{ props.item.status }}</td>
+      <td class="text-xs-left ">{{ props.item.type }}</td>
     </tr>
   </template>
 </v-data-table>`,
@@ -18,6 +19,10 @@ const Orders = Vue.component('orders', {
     return {
       exchange: '', //selected exchange
       headers: [
+        {
+          text: 'TIMESTAMP',
+          value: 'datetime'
+        },        
         {
           text: 'EXCHANGE',
           value: 'exchange'
@@ -122,6 +127,7 @@ const Orders = Vue.component('orders', {
         .map(itemOrder => {
           let retItem = {};
           retItem['id'] = itemOrder.id;
+          retItem['datetime'] = itemOrder.datetime;
           retItem['value'] = false;
           retItem['exchange'] = exchangeId;
           retItem['pair'] = itemOrder.symbol;
