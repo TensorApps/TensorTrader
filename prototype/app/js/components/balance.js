@@ -1,7 +1,7 @@
 /* Balance table */
 const Balance = Vue.component('balance', {
   template: `
-<v-data-table class="elevation-2 orders-table" :headers="headers" :items="items" hide-actions>
+<v-data-table class="elevation-2 orders-table" :headers="headers" :items="items">
   <template slot="items" slot-scope="props">
     <td class="text-xs-left ">{{ props.item.exchange }}</td>
     <td class="text-xs-left ">{{ props.item.currency }}</td>
@@ -11,9 +11,10 @@ const Balance = Vue.component('balance', {
   </template>
 </v-data-table>`,
 
+  props: ['exchange'],
+
   data() {
     return {
-      exchange: '', //selected exchange
       headers: [
         {
           text: 'EXCHANGE',
@@ -36,32 +37,7 @@ const Balance = Vue.component('balance', {
           value: 'total'
         }
       ],
-      items: [
-        // {
-        //   value: false,
-        //   exchange: 'Binance',
-        //   currency: 'BTC',
-        //   free: 1.22,
-        //   used: 7.23,
-        //   total: 8.45
-        // },
-        // {
-        //   value: false,
-        //   exchange: 'Binance',
-        //   currency: 'ETH',
-        //   free: 11.2,
-        //   used: 4.55,
-        //   total: 15.75
-        // },
-        // {
-        //   value: false,
-        //   exchange: 'Binance',
-        //   currency: 'NEO',
-        //   free: 53,
-        //   used: 4,
-        //   total: 57
-        // }
-      ],
+      items: [],
 
       userPassphrase: '',
       apiKey: [],
@@ -72,12 +48,16 @@ const Balance = Vue.component('balance', {
     };
   },
   created: async function() {
-    this.exchange = this.$store.get('exchange', '');
+    //this.exchange = this.$store.get('exchange', '');
+    console.log('Exchange', this.exchange);
     if (this.exchange) {
       this.items = await this.getBalance(this.exchange);
     }
   },
   methods: {
+    exchangeUpdated: function(e) {
+      console.log('Exchange updated', e);
+    },
     //get exchange instance with secure info
     //TODO check for existence of secure info with alert
     getSecureExchange: function(exchangeId) {
@@ -89,6 +69,8 @@ const Balance = Vue.component('balance', {
       //set secure info for exchange
       exchange.apiKey = this.apiConfig[exchangeId].apiKey;
       exchange.secret = this.apiConfig[exchangeId].secret;
+      //if(this.apiConfig[exchangeId].password)
+      exchange.password = this.apiConfig[exchangeId].password;
       // specify CORS proxy
       exchange.proxy = 'https://cors-anywhere.herokuapp.com/';
       return exchange;

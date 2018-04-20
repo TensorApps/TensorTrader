@@ -1,43 +1,48 @@
 /* Exchange/Market selector */
-Vue.component('market-panel', {
+const MarketPanel = Vue.component('market-panel', {
   template: `
-<v-layout row wrap>
-  <v-flex xs6>
-    <v-card class="pa-3">
-      <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="exchange" multi-line autocomplete>
-        <template slot="item" slot-scope="data">
-          <v-list-tile-action>
-            <v-btn icon ripple @click.stop="toggleToFavExch(data.item.value)">
-              <v-icon color="yellow darken">{{ getFavIconExch(data.item.value) }}</v-icon>
-            </v-btn>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-html="data.item.text"></v-list-tile-title>
-          </v-list-tile-content>
-        </template>
-      </v-select>
-      <v-switch label="Favorite exchanges only" v-model="favExchangesOnly" :disabled="!this.favExchanges.length"></v-switch>
-      <v-alert type="error" dismissible v-if="error" v-model="error">{{ error }}</v-alert>
-    </v-card>
-  </v-flex>
-  <v-flex xs6>
-    <v-card class="pa-3">
-      <v-select id="market" label="MARKET" :items="markets" v-model="market" :loading="marketsLoading" multi-line autocomplete>
-        <template slot="item" slot-scope="data">
-          <v-list-tile-action>
-            <v-btn icon ripple @click.stop="toggleToFavMarket(data.item)">
-              <v-icon color="yellow darken">{{ getFavIconMarket(data.item) }}</v-icon>
-            </v-btn>
-          </v-list-tile-action>
-          <v-list-tile-content>
-            <v-list-tile-title v-html="data.item"></v-list-tile-title>
-          </v-list-tile-content>
-        </template>
-      </v-select>
-      <v-switch label="Favorite markets only" v-model="favMarketsOnly" :disabled="!this.favMarkets.length"></v-switch>
-    </v-card>
-  </v-flex>
-</v-layout>`,
+<div>
+  <v-layout row wrap>
+    <v-flex xs6>
+      <v-card class="pa-3">
+        <v-select id="exchange" label="EXCHANGE" :items="exchanges" v-model="exchange" multi-line autocomplete>
+          <template slot="item" slot-scope="data">
+            <v-list-tile-action>
+              <v-btn icon ripple @click.stop="toggleToFavExch(data.item.value)">
+                <v-icon color="yellow darken">{{ getFavIconExch(data.item.value) }}</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title v-html="data.item.text"></v-list-tile-title>
+            </v-list-tile-content>
+          </template>
+        </v-select>
+        <v-switch label="Favorite exchanges only" v-model="favExchangesOnly" :disabled="!this.favExchanges.length"></v-switch>
+        <v-alert type="error" dismissible v-if="error" v-model="error">{{ error }}</v-alert>
+      </v-card>
+    </v-flex>
+    <v-flex xs6>
+      <v-card class="pa-3">
+        <v-select id="market" label="MARKET" :items="markets" v-model="market" :loading="marketsLoading" multi-line autocomplete>
+          <template slot="item" slot-scope="data">
+            <v-list-tile-action>
+              <v-btn icon ripple @click.stop="toggleToFavMarket(data.item)">
+                <v-icon color="yellow darken">{{ getFavIconMarket(data.item) }}</v-icon>
+              </v-btn>
+            </v-list-tile-action>
+            <v-list-tile-content>
+              <v-list-tile-title v-html="data.item"></v-list-tile-title>
+            </v-list-tile-content>
+          </template>
+        </v-select>
+        <v-switch label="Favorite markets only" v-model="favMarketsOnly" :disabled="!this.favMarkets.length"></v-switch>
+      </v-card>
+    </v-flex>
+  </v-layout>
+  <trade-panel :exchange="exchange" :market="market"></trade-panel>
+  <details-panel :exchange="exchange"></details-panel>
+</div>
+`,
 
   data() {
     return {
@@ -62,7 +67,7 @@ Vue.component('market-panel', {
   },
 
   created: function() {
-    this.exchange = this.$store.get('exchange', ''); //need to set default value, because otherwise it returns undefined and it causes problems
+    this.exchange = this.$store.get('exchange', '');
     this.market = this.$store.get('market', '');
 
     this.favExchanges = this.$store.get('favExchanges', []);
@@ -81,11 +86,23 @@ Vue.component('market-panel', {
       this.error = '';
       if (exchangeId) this.getMarkets(exchangeId).then(markets => (this.markets = markets));
       this.$store.set('exchange', exchangeId);
+      this.$emit('exchange', exchangeId);
       console.log('Setting exchange to', exchangeId);
     },
     market: function(val) {
       this.$store.set('market', val);
+      this.$emit('market', val);
       console.log('Setting market to', val);
+    },
+    favExchanges: function(val) {
+      this.$store.set('favExchanges', val);
+      //this.$emit('favExchanges', val);
+      console.log('Setting favExchanges to', val);
+    },
+    favMarkets: function(val) {
+      this.$store.set('favMarkets', val);
+      //this.$emit('favMarkets', val);
+      console.log('Setting favMarkets to', val);
     },
     favExchangesOnly: function() {
       this.$store.set('favExchangesOnly', this.favExchangesOnly);
@@ -116,7 +133,7 @@ Vue.component('market-panel', {
         this.favExchanges.push(exchId);
       }
       // store the changed favExchanges
-      this.$store.set('favExchanges', this.favExchanges);
+      //this.$store.set('favExchanges', this.favExchanges);
     },
     toggleToFavMarket: function(mktId) {
       // if market is already favorite - remove it from favorites
@@ -126,7 +143,7 @@ Vue.component('market-panel', {
         this.favMarkets.push(mktId);
       }
       // store the changed favExchanges
-      this.$store.set('favMarkets', this.favMarkets);
+      //this.$store.set('favMarkets', this.favMarkets);
     },
     // get all exchanges
     getExchanges: function() {

@@ -42,11 +42,13 @@ const DetailsPanel = Vue.component('details-panel', {
     </v-tabs>
     <v-card>
       <v-card-text>
-        <router-view></router-view>
+        <router-view :exchange="exchange"></router-view>
       </v-card-text>
     </v-card>
   </v-flex>
 </v-layout>`,
+
+  props: ['exchange'],
 
   data() {
     return { detailsActiveTab: '/trading/orders' };
@@ -62,5 +64,7 @@ const DetailsPanel = Vue.component('details-panel', {
       this.$store.set('detailsActiveTab', this.detailsActiveTab);
       console.log('Setting detailsActiveTab to', this.detailsActiveTab);
     }
-  }
+  },
+
+  methods: {}
 });

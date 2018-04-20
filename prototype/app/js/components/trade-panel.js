@@ -1,5 +1,5 @@
 /* Trade panel */
-Vue.component('trade-panel', {
+const TradePanel = Vue.component('trade-panel', {
   template: `
 <v-layout row wrap>
   <v-flex xs12>
@@ -49,12 +49,14 @@ Vue.component('trade-panel', {
   </v-flex>
 </v-layout>`,
 
+  props: ['exchange', 'market'],
+
   data() {
     return {
-      exchange: {},
-      market: {},
       amount: '0.00000000',
       price: '0.00'
     };
-  }
+  },
+
+  methods: {}
 });

@@ -17,55 +17,6 @@ async function cacheExchangeInfo() {
 cacheExchangeInfo();
 */
 
-/* Pages config */
-const TradingPage = {
-  template: `
-<v-container fluid grid-list-lg>
-  <passphrase-popup></passphrase-popup>
-  <market-panel></market-panel>
-  <trade-panel></trade-panel>
-  <details-panel></details-panel>
-</v-container>`
-};
-
-const SettingsPage = {
-  template: `
-<v-container fluid grid-list-lg>
-  <passphrase-popup></passphrase-popup>
-  <settings-panel></settings-panel>
-</v-container>`
-};
-
-/* Router config */
-const router = new VueRouter({
-  //mode: 'history',
-  routes: [
-    {
-      path: '/trading',
-      component: TradingPage,
-      children: [
-        { path: 'orders', component: Orders },
-        { path: 'history', component: History },
-        { path: 'balance', component: Balance }
-      ]
-    },
-    {
-      path: '/settings',
-      component: SettingsPage
-    },
-    { path: '*', redirect: '/trading' }
-  ]
-});
-
-// Progress
-router.beforeEach((to, from, next) => {
-  NProgress.start();
-  next();
-});
-router.afterEach((to, from) => {
-  NProgress.done();
-});
-
 /* Storage config */
 Vue.prototype.$store = new Store(StoreType.Local, 'trader__');
 Vue.prototype.$session = new Store(StoreType.Session, 'trader__');
@@ -90,10 +41,6 @@ const App = new Vue({
         { icon: 'settings', title: 'Settings', path: '/settings' }
       ]
     };
-  },
-
-  created() {
-    //
   },
 
   mounted() {
