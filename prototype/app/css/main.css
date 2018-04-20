@@ -24,6 +24,18 @@ body {
   background: #303030 !important;
 }
 
+.table-item-buy td {
+  background: #1d581d !important;
+}
+
+.table-item-sell td {
+  background: #86242f !important;
+}
+
+.table-item-canceled td {
+  background: #83832e !important;
+}
+
 /* Exchange avatars */
 .avatar--tile.exchAvatar {
   width: 85px !important;
