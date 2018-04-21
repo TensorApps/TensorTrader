@@ -13,6 +13,11 @@ const Orders = Vue.component('orders', {
       <td class="text-xs-left ">{{ props.item.type }}</td>
     </tr>
   </template>
+  <template slot="no-data">
+    <v-alert color="info" icon="info" :value="true">
+      <b>No exchange/market selected!</b><br/><small> Please select exchange and market.</small>
+    </v-alert>
+  </template>
 </v-data-table>`,
 
   data() {

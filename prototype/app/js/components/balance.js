@@ -9,6 +9,11 @@ const Balance = Vue.component('balance', {
     <td class="text-xs-left ">{{ props.item.used }}</td>
     <td class="text-xs-left ">{{ props.item.total }}</td>
   </template>
+  <template slot="no-data">
+    <v-alert color="warning" icon="warning" :value="errorApiText">
+      {{ errorApiText }}
+    </v-alert>
+  </template>  
 </v-data-table>`,
 
   data() {
@@ -68,7 +73,8 @@ const Balance = Vue.component('balance', {
       secret: [],
       password: [],
       exchangeInfo: {},
-      apiConfig: {}
+      apiConfig: {},
+      errorApiText: "",
     };
   },
   created: async function() {
@@ -79,11 +85,17 @@ const Balance = Vue.component('balance', {
   },
   methods: {
     //get exchange instance with secure info
-    //TODO check for existence of secure info with alert
     getSecureExchange: function(exchangeId) {
       //get secure info for exchange
       this.userPassphrase = this.$session.get('userPassphrase');
       this.apiConfig = this.$secureStore.get('apiConfig', this.userPassphrase, {});
+      // check if api keys exists
+      if (!this.apiConfig[exchangeId] || (!this.apiConfig[exchangeId].apiKey && !this.exchangeId.secret)) {
+        this.errorApiText = 'Please enter API key and API secret at the settings page';
+        return undefined;
+      } else {
+        this.errorApiText = "";
+      }
       // create a new exhange
       const exchange = new ccxt[exchangeId]();
       //set secure info for exchange
@@ -99,8 +111,14 @@ const Balance = Vue.component('balance', {
     //get balance data for given exchange
     getBalance: async function(exchangeId) {
       const exchange = this.getSecureExchange(exchangeId);
+      if (exchange === undefined) return [];
       const balance = await exchange.fetchBalance({ recvWindow: 600000 });
       const keys = Object.keys(balance);
+      if (!keys.length) {
+        this.errorApiText = 'No records to show';
+      } else {
+        this.errorApiText = '';
+      }
       const aRet = keys
         .map(itemKey => {
           let retItem = {};

@@ -20,7 +20,7 @@ body {
   display: none;
 }
 
-.orders-table * {
+.orders-table * :not(div.alert) {
   background: #303030 !important;
 }
 
