@@ -62,7 +62,7 @@ Vue.component('settings-panel', {
               <v-form>
                 <v-text-field label="API Key" v-model="apiConfig[exchange].apiKey" @change="updateApiConfig()" :append-icon="passHiddenAPI ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenAPI = !passHiddenAPI)" :type="passHiddenAPI ? 'password' : 'text'"></v-text-field>
                 <v-text-field label="Secret" v-model="apiConfig[exchange].secret" @change="updateApiConfig()" :append-icon="passHiddenSecret ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenSecret = !passHiddenSecret)" :type="passHiddenSecret ? 'password' : 'text'"></v-text-field>
-                <v-text-field label="Passphrase" v-model="apiConfig[exchange].password" @change="updateApiConfig()" :append-icon="passHiddenPass ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenPass = !passHiddenPass)" :type="passHiddenPass ? 'password' : 'text'"></v-text-field>
+                <v-text-field label="Passphrase" v-model="apiConfig[exchange].password" v-if="isPassphraseNeeded(exchange)" @change="updateApiConfig()" :append-icon="passHiddenPass ? 'visibility' : 'visibility_off'" :append-icon-cb="() => (passHiddenPass = !passHiddenPass)" :type="passHiddenPass ? 'password' : 'text'"></v-text-field>
               </v-form>
             </v-card-text>
           </v-card>
@@ -176,6 +176,10 @@ Vue.component('settings-panel', {
   },
 
   methods: {
+    isPassphraseNeeded: function(exchangeId) {
+      const exchange = new ccxt[exchangeId]();
+      return exchange.requiredCredentials.password;
+    },
     syncExchangeInfo: function() {
       // get information about favorite exchanges
       for (let exchangeId of this.favExchanges) {
